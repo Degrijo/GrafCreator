@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f70c76e3-328a-4373-857c-d0588701b49a" name="Default Changelist" comment="" />
+    <list default="true" id="f70c76e3-328a-4373-857c-d0588701b49a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/logic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testLogic.py" beforeDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,49 +17,66 @@
     <session id="-556695851">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="11" />
+          <entry key="project.closed" value="13" />
           <entry key="project.open.time.0" value="2" />
-          <entry key="project.open.time.3" value="2" />
-          <entry key="project.open.time.4" value="5" />
-          <entry key="project.open.time.6" value="2" />
-          <entry key="project.opened" value="11" />
+          <entry key="project.open.time.3" value="3" />
+          <entry key="project.open.time.4" value="6" />
+          <entry key="project.open.time.6" value="3" />
+          <entry key="project.opened" value="14" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="3" />
+          <entry key="py" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="3" />
+          <entry key="Python" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="3695" />
+          <entry key="py" value="4918" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="3695" />
+          <entry key="Python" value="4918" />
+        </counts>
+      </usages-collector>
+    </session>
+    <session id="-906745927">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="1" />
+          <entry key="project.open.time.0" value="1" />
+          <entry key="project.opened" value="1" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/logic.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" column="61" selection-start-line="9" selection-start-column="61" selection-end-line="9" selection-end-column="61" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="125" lean-forward="true" selection-start-line="125" selection-end-line="125" />
+            <state relative-caret-position="294">
+              <caret line="20" column="40" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
               <folding>
-                <element signature="e#0#92#0" expanded="true" />
-                <marker date="1553064346000" expanded="true" signature="248:4764" ph="..." />
-                <marker date="1553064346000" expanded="true" signature="3067:3523" ph="..." />
-                <marker date="1553064346000" expanded="true" signature="4037:4392" ph="..." />
-                <marker date="1553064346000" expanded="true" signature="4568:4764" ph="..." />
+                <element signature="e#0#150#0" expanded="true" />
+                <marker date="1554075502000" expanded="true" signature="308:3774" ph="..." />
+                <marker date="1554075502000" expanded="true" signature="3265:3271" ph="..." />
+                <marker date="1554075502000" expanded="true" signature="3773:3774" ph="..." />
               </folding>
             </state>
           </provider>
@@ -62,9 +84,26 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>qpoint</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/icons/logic.py" />
+        <option value="$PROJECT_DIR$/logic.py" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -78,11 +117,34 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Editor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Editor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Editor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Editor" type="462c0819:PsiDirectoryNode" />
+              <item name="icons" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\БГУиР\4 сем\ОТС\Editor" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -139,13 +201,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.24983476" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24983476" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32907802" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3602837" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -175,16 +238,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/testLogic.py" />
+    <entry file="file://$PROJECT_DIR$/logic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="61" selection-start-line="9" selection-start-column="61" selection-end-line="9" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="125" lean-forward="true" selection-start-line="125" selection-end-line="125" />
+        <state relative-caret-position="294">
+          <caret line="20" column="40" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
           <folding>
-            <element signature="e#0#92#0" expanded="true" />
-            <marker date="1553064346000" expanded="true" signature="248:4764" ph="..." />
-            <marker date="1553064346000" expanded="true" signature="3067:3523" ph="..." />
-            <marker date="1553064346000" expanded="true" signature="4037:4392" ph="..." />
-            <marker date="1553064346000" expanded="true" signature="4568:4764" ph="..." />
+            <element signature="e#0#150#0" expanded="true" />
+            <marker date="1554075502000" expanded="true" signature="308:3774" ph="..." />
+            <marker date="1554075502000" expanded="true" signature="3265:3271" ph="..." />
+            <marker date="1554075502000" expanded="true" signature="3773:3774" ph="..." />
           </folding>
         </state>
       </provider>

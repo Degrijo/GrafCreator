@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QMenuBar, QMenu, QFileDialog
-from PyQt5.QtGui import QIcon, QImage, QPainter, QPen
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QMenuBar, QMenu, QFileDialog, QGraphicsScene, QGraphicsView
+from PyQt5.QtGui import QIcon, QPainter, QPen, QBrush
+from PyQt5.QtCore import Qt, QPoint, QRectF
 import sys
-from random import choice
+from logic import *
 
 
 class Window(QMainWindow):
@@ -17,12 +17,16 @@ class Window(QMainWindow):
         self.setWindowIcon(QIcon("icons/icon.png"))
         self.setWindowTitle("GrafCreator")
         self.setGeometry(top, left, width, height)
-        self.image = QImage(self.size(), QImage.Format_RGB32)
-        self.image.fill(Qt.white)
+        self.scene = QGraphicsScene()
+        self.scene.setSceneRect(QRectF(0, 0, width, height))
+        self.graphics_view = QGraphicsView()
+        self.graphics_view.setScene(self.scene)
+        self.setCentralWidget(self.graphics_view)
         self.vertex = True
-        self.point = QPoint
         self.color = Qt.black
+        self.node_rad = 20
         self.selected = None
+        self.graf = Graf()
 
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu("File")
@@ -58,33 +62,11 @@ class Window(QMainWindow):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
             if self.vertex:
-                #self.vertexes.append(Vertex(event.pos()[0], event.pos()[1], self.color))
-                #self.selected = self.vertexes[-1]
-                print(event.pos())
-                # нарисовать вершину
-                '''painter = QPainter(self.image)
-                painter.setPen(QPen(self.color, self.vertrad, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-                painter.drawLine(self.point, event.pos())
-                self.point = event.pos()
-                self.update()
-
-    def clickOnVertex(self, event):
-        if self.vertex:
-            for vert in self.vertexes:
-                if self.x <= event.pos()[0] <= vert.x + self.vertrad and self.y <= event.pos()[1] <= vert.y + self.vertrad:
-                    self.selected = vert'''
-
-    def buttonPushEvent(self, event):
-        if self.selected is not None:
-            if event.key() == Qt.Key_I:
-                if type(self.selected) is Vertex:
-                    #выводить окошко
-                    pass
-            elif event.button() == Qt.Key_Delete:
-                if type(self.selected) is Vertex:
-                    # удалять абсолютно все упоминания объекта
-                    self.vertexes.remove(self.selected)
-                    self.selected = None
+                self.graf.add_vertex(event.pos().x(), event.pos().y())
+                self.selected = self.graf.vertexes[-1]
+                self.scene.addEllipse(event.pos().x(), event.pos().y()-self.node_rad//2, self.node_rad, self.node_rad)
+                print(event.pos().x(), event.pos().y())
+                print(self.scene.sceneRect())
 
     def save(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG(*.png);;JPEG(*.jpg *.jpeg);; ALL Files(*.*)")
@@ -107,41 +89,6 @@ class Window(QMainWindow):
 
     def blue(self):
         self.color = Qt.blue
-
-
-class Graf:
-    def __init__(self):
-        self.vertexes = []
-        self.vertexRad = 5
-
-    def diameter(self):
-        borderVert = []
-        for vert in self.vertexes:
-            if len(vert.edges):
-                borderVert.append(vert)
-        for vert in borderVert:
-            states = self.vertexes.copy()
-            while vert not in borderVert:
-
-
-
-
-class Vertex:
-    def __init__(self, x, y, color):
-        self.x = x
-        self.y = y
-        self.name = ""
-        self.color = color
-        self.edges = []
-
-
-class Edge:
-    def __init__(self, color, vertex1, vertex2):
-        self.color = color
-        self.vertex1 = vertex1
-        self.vertex2 = vertex2
-        self.weight = int()
-        self.side = bool()
 
 
 if __name__ == "__main__":
