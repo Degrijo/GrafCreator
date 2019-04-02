@@ -1,13 +1,23 @@
+from PyQt5.QtWidgets import QMessageBox
 from random import choice
+import networkx as nx
 
 
 class Graf:
-    def __init__(self):  # делать граф взвешенным, если добавляет вес ребру
+    def __init__(self, node_rad):  # делать граф взвешенным, если добавляет вес ребру
         self.vertexes = []
         self.weighted = False
+        self.node_rad = node_rad
+
+    def get_vertex(self, x, y):
+        selected = False
+        for vert in self.vertexes:
+            if vert.x - self.node_rad < x < vert.x + self.node_rad and vert.y - self.node_rad < y < vert.y + self.node_rad:
+                selected = vert
+        return selected
 
     def add_vertex(self, x, y):
-        self.vertexes.append(Vertex(len(self.vertexes), x, y))
+        self.vertexes.append(Vertex(str(len(self.vertexes)), x, y))
 
     def add_edge(self, vertex1, vertex2, oriented=False):
         if vertex1 in self.vertexes and vertex2 in self.vertexes:
@@ -34,11 +44,28 @@ class Graf:
         self.vertexes.remove(vertex)
 
     def get_edge(self, vertex1, vertex2):
+        selected = False
         for edge in vertex1.edges:
             if edge.vertex2 == vertex2:
-                return edge
+                selected = edge
+        return selected
 
-    def radius_diameter(self):  # нужно проверять на отсутствие петель!!!
+    def radius_diameter(self):
+        g = nx.Graph()
+        for vert in self.vertexes:
+            for edge in vert.edges:
+                g.add_edge(vert, edge.vertex2)
+        if len(g.nodes) > 0:
+            return nx.radius(g), nx.diameter(g)
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Empty graph")
+            msg.setWindowTitle("Graph doesn't has any nodes")
+            msg.setDetailedText("You can't calculate it in empty graph!")
+            msg.setStandardButtons(QMessageBox.Ok)
+
+    def my_radius_diameter(self):
         if len(self.vertexes) is not 0:
             vert_with_min_edges = [-1]
             roads = {}
