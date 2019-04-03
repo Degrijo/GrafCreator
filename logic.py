@@ -106,7 +106,8 @@ class Graf:
                 for i in range(int(times) * 2):
                     vert1 = vert
                     road = {}
-                    while vert1 not in vert_with_min_edges[vert_with_min_edges.index(vert) + 1:]:
+                    #while vert1 not in vert_with_min_edges[vert_with_min_edges.index(vert) + 1:]:
+                    while vert1 not in vert_with_min_edges:
                         free_edges = []
                         for edge in vert1.edges:
                             if edge.check and edge.vertex2.check:

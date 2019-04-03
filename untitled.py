@@ -1,16 +1,11 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'untitled.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+from logic import *
+
 
 class Ui_GrafCreator(object):
     def setupUi(self, GrafCreator):
         GrafCreator.setObjectName("GrafCreator")
+        GrafCreator.setWindowIcon(QtGui.QIcon("icons/icon.png"))
         GrafCreator.resize(1124, 819)
         GrafCreator.setDocumentMode(True)
         self.centralwidget = QtWidgets.QWidget(GrafCreator)
@@ -44,18 +39,54 @@ class Ui_GrafCreator(object):
         self.statusbar = QtWidgets.QStatusBar(GrafCreator)
         self.statusbar.setObjectName("statusbar")
         GrafCreator.setStatusBar(self.statusbar)
-        self.actionNew = QtWidgets.QAction(GrafCreator)
-        self.actionNew.setObjectName("actionNew")
-        self.actionOpen = QtWidgets.QAction(GrafCreator)
-        self.actionOpen.setObjectName("actionOpen")
-        self.menunew.addAction(self.actionNew)
-        self.menunew.addAction(self.actionOpen)
-        self.menubar.addAction(self.menunew.menuAction())
-        self.menubar.addAction(self.menuopen.menuAction())
+        mainMenu = self.menubar
+        fileMenu = mainMenu.addMenu("File")
+        colorMenu = mainMenu.addMenu("Color")
+        vertexMenu = mainMenu.addMenu("Vertex")
+        edgeMenu = mainMenu.addMenu("Edge")
+        algoMenu = mainMenu.addMenu("Algorithms")
+
+        saveAction = QtWidgets.QAction(QtGui.QIcon("icons/save.png"), "Save", self)
+        saveAction.setShortcut("Ctrl+S")
+        saveAction.triggered.connect(self.save)
+        fileMenu.addAction(saveAction)
+        clearAction = QtWidgets.QAction(QtGui.QIcon("icons/clear.png"), "Clear", self)
+        clearAction.setShortcut("Ctrl+O")
+        fileMenu.addAction(clearAction)
+        clearAction.triggered.connect(self.clear)
+        blackAction = QtWidgets.QAction(QtGui.QIcon("icons/black.png"), "Black", self)
+        blackAction.setShortcut("Ctrl+1")
+        colorMenu.addAction(blackAction)
+        blackAction.triggered.connect(self.black)
+        redAction = QtWidgets.QAction(QtGui.QIcon("icons/red.png"), "Red", self)
+        redAction.setShortcut("Ctrl+2")
+        colorMenu.addAction(redAction)
+        redAction.triggered.connect(self.red)
+        greenAction = QtWidgets.QAction(QtGui.QIcon("icons/green.png"), "Green", self)
+        greenAction.setShortcut("Ctrl+3")
+        colorMenu.addAction(greenAction)
+        greenAction.triggered.connect(self.green)
+        blueAction = QtWidgets.QAction(QtGui.QIcon("icons/blue.png"), "Blue", self)
+        blueAction.setShortcut("Ctrl+4")
+        colorMenu.addAction(blueAction)
+        blueAction.triggered.connect(self.blue)
+        diamAction = QtWidgets.QAction(QtGui.QIcon("icons/diameter.png"), "Diameter", self)
+        diamAction.setShortcut("Ctrl+5")
+        algoMenu.addAction(diamAction)
+        # diamAction.triggered.connect(self.show_diameter())
+        radAction = QtWidgets.QAction(QtGui.QIcon("icons/radius.png"), "Radius", self)
+        diamAction.setShortcut("Ctrl+6")
+        algoMenu.addAction(radAction)
+        # radAction.triggered.connect(self.show_radius())
 
         self.retranslateUi(GrafCreator)
         self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(GrafCreator)
+
+        self.vertex = True
+        self.color = QtCore.Qt.black
+        self.selected = None
+        self.graf = Graf(20)
 
     def retranslateUi(self, GrafCreator):
         _translate = QtCore.QCoreApplication.translate
