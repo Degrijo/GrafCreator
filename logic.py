@@ -4,20 +4,12 @@ import networkx as nx
 
 
 class Graf:
-    def __init__(self, node_rad):  # делать граф взвешенным, если добавляет вес ребру
+    def __init__(self):  # делать граф взвешенным, если добавляет вес ребру
         self.vertexes = []
         self.weighted = False
-        self.node_rad = node_rad
 
-    def get_vertex(self, x, y):
-        selected = False
-        for vert in self.vertexes:
-            if vert.x - self.node_rad < x < vert.x + self.node_rad and vert.y - self.node_rad < y < vert.y + self.node_rad:
-                selected = vert
-        return selected
-
-    def add_vertex(self, x, y):
-        self.vertexes.append(Vertex(str(len(self.vertexes)), x, y))
+    def add_vertex(self, item):
+        self.vertexes.append(Vertex(str(len(self.vertexes)), item))
 
     def add_edge(self, vertex1, vertex2, oriented=False):
         if vertex1 in self.vertexes and vertex2 in self.vertexes:
@@ -170,10 +162,9 @@ class Graf:
 
 
 class Vertex:
-    def __init__(self, name, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, name, item):
         self.name = name
+        self.item = item
         self.edges = []
         self.check = True
 
