@@ -1,10 +1,15 @@
 from random import choice
 import networkx as nx
+from json import dumps
 
 
 class Graf:
     def __init__(self):  # делать граф взвешенным, если добавляет вес ребру
         self.vertexes = []
+        self.weighted = False
+
+    def clear(self):
+        self.vertexes.clear()
         self.weighted = False
 
     def get_edge(self, vertex1, vertex2):
@@ -24,7 +29,9 @@ class Graf:
                     return edge
 
     def add_vertex(self, item):
-        self.vertexes.append(Vertex(item))
+        new_vert = Vertex(item)
+        self.vertexes.append(new_vert)
+        return new_vert
 
     def add_edge(self, vertex1, vertex2, item):
         vertex1.edges.append(Edge(vertex1, vertex2, item))
@@ -38,18 +45,31 @@ class Graf:
                 vertex2.edges.remove(edge2)
 
     def del_vertex(self, vertex):
-        for edge in vertex.edges:
-            self.del_edge(vertex, edge.vertex2)
+        for vert in self.vertexes:
+            for edge in vert.edges:
+                if edge.vertex1 == vertex or edge.vertex2 == vertex:
+                    vert.edges.remove(edge)
         self.vertexes.remove(vertex)
 
-    def radius_diameter(self):
+    def invert_to_standart(self):
         g = nx.Graph()
         for vert in self.vertexes:
             for edge in vert.edges:
                 g.add_edge(vert, edge.vertex2)
-        print(list(g.nodes))
+        return g
+
+    def radius_diameter(self):
+        g = self.invert_to_standart()
         if len(list(g.nodes)) > 0:
             return nx.radius(g), nx.diameter(g)
+
+    def is_tree(self):
+        return nx.is_tree(self.invert_to_standart())
+
+    def center(self):
+        rez = nx.center(self.invert_to_standart())
+        for i in rez:
+            i.item.selection()
 
     def my_radius_diameter(self):
         if len(self.vertexes) is not 0:
@@ -66,7 +86,6 @@ class Graf:
                         vert_with_min_edges.append(vert)
             if len(vert_with_min_edges) == 1:
                 if vert_with_min_edges == [-1]:
-                    print("Too little edges")
                     return 0, 0
                 else:
                     i = len(vert_with_min_edges) + 1
@@ -154,6 +173,9 @@ class Graf:
         else:
             return 0, 0
 
+    def toJSON(self):
+        return dumps({'vertexes': {vert.item.name: vert.toJSON() for vert in self.vertexes}}, indent=4)
+
 
 class Vertex:
     def __init__(self, item):
@@ -161,8 +183,11 @@ class Vertex:
         self.edges = []
         self.check = True
 
+    def toJSON(self):
+        return {'item': self.item.toJSON(), 'edges': {obj.vertex2.item.name: obj.toJSON() for obj in self.edges}}
 
-class Edge:  # отрисовывать вершины по координатом их на сцене, а не по собственному прямоугольнику
+
+class Edge:
     def __init__(self, vertex1, vertex2, item):
         self.vertex1 = vertex1
         self.vertex2 = vertex2
@@ -172,3 +197,6 @@ class Edge:  # отрисовывать вершины по координато
 
     def set_weight(self, weight):
         self.weight = weight
+
+    def toJSON(self):
+        return {'item': self.item.toJSON(), 'weight': self.weight}

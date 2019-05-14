@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui, QtWidgets
 import qdarkgraystyle
-from logic import Graf
+from logic import *
 from items import *
-from pickle import dump, load
+from json import load
 
 
 class Tab(QtWidgets.QWidget):
@@ -31,8 +31,12 @@ class Tab(QtWidgets.QWidget):
             self.edge.clear()
             for item in self.scene.selectedItems():
                 if type(item) is VertexItem:
-                    for edge in self.graf.get_vertex_item(item).edges:
-                        self.scene.removeItem(edge.item)
+                    for vert in self.graf.vertexes:
+                        for edge in vert.edges:
+                            if edge.vertex1 == self.graf.get_vertex_item(
+                                    item) or edge.vertex2 == self.graf.get_vertex_item(item):
+                                if edge.item in self.scene.items():
+                                    self.scene.removeItem(edge.item)
                     self.scene.removeItem(item)
                     self.graf.del_vertex(self.graf.get_vertex_item(item))
                 elif type(item) is EdgeItem:
@@ -41,10 +45,7 @@ class Tab(QtWidgets.QWidget):
                         self.scene.removeItem(item)
                         self.graf.del_edge(edge.vertex1, edge.vertex2)
         if QKeyEvent.key() == QtCore.Qt.Key_W:
-            print('1')
-            print(self.scene.selectedItems())
             if len(self.scene.selectedItems()) is 1 and type(self.scene.selectedItems()[0]) is EdgeItem:
-                print('2')
                 msg = QtWidgets.QInputDialog
                 msg.setIcon(QtWidgets.QMessageBox.Information)
                 msg.setWindowTitle("Weight of selected edge")
@@ -61,35 +62,37 @@ class Tab(QtWidgets.QWidget):
     def mouseDoubleClickEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             if self.parent.vertex:
-                vert_item = self.addVertexItem((event.pos().x() - 25, event.pos().y() - 25, 50, 50),
-                                               str(len(self.graf.vertexes)), 10)
+                vert_item = self.addVertexItem(QtCore.QRectF(event.pos().x() - 25, event.pos().y() - 25, 50, 50),
+                                               str(len(self.graf.vertexes)), self.parent.color, 10)
                 self.graf.add_vertex(vert_item)
 
-    def addEdgeItem(self):
+    def checkEdgeItem(self):
         if not self.parent.vertex:
-            if len(self.scene.selectedItems()) is not 1:
-                return
-            item = self.scene.selectedItems()[0]
-            self.edge.append(item)
-            if len(self.edge) is 2:
-                vert1 = self.graf.get_vertex_item(self.edge[0])
-                vert2 = self.graf.get_vertex_item(self.edge[1])
-                if vert1 is not None and vert2 is not None:
-                    if self.graf.get_edge(vert1, vert2) is None:
-                        if vert1 == vert2:
-                            item = EdgeItem(self.edge[0], self.edge[1], QtGui.QPen(self.parent.color, 10.0),
-                                            QtGui.QPen(self.getLightColor(), 10), self, True)
-                        elif self.graf.get_edge(vert2, vert1) is not None:
-                            self.graf.get_edge(vert2, vert1).item.makeNotOriented()
-                        else:
-                            item = EdgeItem(self.edge[0], self.edge[1], QtGui.QPen(self.parent.color, 10.0),
-                                            QtGui.QPen(self.getLightColor(), 10.0), self)
-                        self.scene.addItem(item)
-                        self.graf.add_edge(vert1, vert2, item)
-                        self.edge.clear()
+            if len(self.scene.selectedItems()) is 1:
+                self.edge.append(self.scene.selectedItems()[0])
+                if len(self.edge) is 2:
+                    self.addEdgeItem(self.edge, self.parent.color, 10.0)
 
-    def getLightColor(self):
-        col = self.parent.color
+    def addEdgeItem(self, edge, color, branchSize):
+        vert1 = self.graf.get_vertex_item(edge[0])
+        vert2 = self.graf.get_vertex_item(edge[1])
+        if vert1 is not None and vert2 is not None:
+            if self.graf.get_edge(vert1, vert2) is None:
+                if vert1 == vert2:
+                    item = EdgeItem(edge[0], edge[1], QtGui.QPen(color, branchSize),
+                                    QtGui.QPen(self.getLightColor(color), branchSize), self, True)
+                    self.scene.addItem(item)
+                elif self.graf.get_edge(vert2, vert1) is not None:
+                    item = self.graf.get_edge(vert2, vert1)
+                    self.graf.get_edge(vert2, vert1).item.makeNotOriented()
+                else:
+                    item = EdgeItem(edge[0], edge[1], QtGui.QPen(color, branchSize),
+                                    QtGui.QPen(self.getLightColor(color), branchSize), self)
+                    self.scene.addItem(item)
+                self.graf.add_edge(vert1, vert2, item)
+                edge.clear()
+
+    def getLightColor(self, col):
         if col == QtGui.QColor(205, 0, 0):
             return QtGui.QColor(255, 0, 0)
         elif col == QtGui.QColor(0, 205, 0):
@@ -99,9 +102,8 @@ class Tab(QtWidgets.QWidget):
         else:
             return QtGui.QColor(255, 255, 255)
 
-    def addVertexItem(self, rect, name, font_size):
-        item = VertexItem(rect, QtGui.QBrush(self.parent.color), QtGui.QBrush(self.getLightColor()), name, font_size,
-                          self)
+    def addVertexItem(self, rect, name, color, font_size):
+        item = VertexItem(rect, QtGui.QBrush(color), QtGui.QBrush(self.getLightColor(color)), name, font_size, self)
         self.scene.addItem(item)
         return item
 
@@ -118,6 +120,7 @@ class Tab(QtWidgets.QWidget):
         self.scene.removeItem(item)
 
     def clear(self):
+        self.graf.clear()
         self.scene.clear()
 
     def radius(self):
@@ -141,6 +144,57 @@ class Tab(QtWidgets.QWidget):
         else:
             msg.setText("Empty graph")
         msg.exec()
+
+    def center(self):
+        self.graf.center()
+
+    def is_tree(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setWindowTitle("Center of current Graph")
+        rez = self.graf.is_tree()
+        if rez is not None:
+            if rez is True:
+                msg.setText("Yes")
+            else:
+                msg.setText("No")
+        else:
+            msg.setText("Empty graph")
+        msg.exec()
+
+    def vertNumber(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setWindowTitle("Number of vertex of current Graph")
+        rez = len(self.graf.vertexes)
+        if rez is not 0:
+            msg.setText(str(rez))
+        else:
+            msg.setText("Graph doesn't have any vertexes")
+        msg.exec()
+
+    def edgeNumber(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setWindowTitle("Number of edges of current Graph")
+        rez = 0
+        for vert in self.graf.vertexes:
+            rez += len(vert.edges)
+        if rez is not 0:
+            msg.setText(str(rez))
+        else:
+            msg.setText("Graph doesn't have any edges")
+        msg.exec()
+
+    def save(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "QtWidgets.QFileDialog.getSaveFileName()", "",
+                                                            "Graph Files (*.graph);;All Files (*)", options=options)
+        if fileName[-6:] != '.graph':
+            fileName += '.graph'
+        with open(fileName, 'w') as file:
+            file.write(self.graf.toJSON())
 
 
 # спрашивало "сохранились ли вы?"
@@ -204,6 +258,22 @@ class Ui_GrafCreator(object):
         self.actionDiameter.setShortcut("Ctrl+D")
         self.actionDiameter.setDisabled(True)
         self.actionDiameter.triggered.connect(self.diameter)
+        self.actionCenter = QtWidgets.QAction(QtGui.QIcon("icons/center.png"), "Center", GrafCreator)
+        self.actionCenter.setShortcut("Ctrl+K")
+        self.actionCenter.setDisabled(True)
+        self.actionCenter.triggered.connect(self.center)
+        self.actionIsTree = QtWidgets.QAction(QtGui.QIcon("icons/isTree.png"), "Is Tree?", GrafCreator)
+        self.actionIsTree.setShortcut("Ctrl+T")
+        self.actionIsTree.setDisabled(True)
+        self.actionIsTree.triggered.connect(self.is_tree)
+        self.actionVertNumber = QtWidgets.QAction(QtGui.QIcon("icons/vertNumber.png"), "VertNumber", GrafCreator)
+        self.actionVertNumber.setShortcut("Ctrl+N")
+        self.actionVertNumber.setDisabled(True)
+        self.actionVertNumber.triggered.connect(self.vertNumber)
+        self.actionEdgeNumber = QtWidgets.QAction(QtGui.QIcon("icons/edgeNumber.png"), "EdgeNumber", GrafCreator)
+        self.actionEdgeNumber.setShortcut("Ctrl+E")
+        self.actionEdgeNumber.setDisabled(True)
+        self.actionEdgeNumber.triggered.connect(self.edgeNumber)
         self.actionCloseTab = QtWidgets.QAction(QtGui.QIcon("icons/close.png"), "Close tab", GrafCreator)
         self.actionCloseTab.setShortcut("Ctrl+W")
         self.actionCloseTab.setDisabled(True)
@@ -224,8 +294,12 @@ class Ui_GrafCreator(object):
         self.menuColor.addAction(self.actionRed)
         self.menuColor.addAction(self.actionGreen)
         self.menuColor.addAction(self.actionBlue)
+        self.menuAlgorithms.addAction(self.actionVertNumber)
+        self.menuAlgorithms.addAction(self.actionEdgeNumber)
         self.menuAlgorithms.addAction(self.actionRadius)
         self.menuAlgorithms.addAction(self.actionDiameter)
+        self.menuAlgorithms.addAction(self.actionCenter)
+        self.menuAlgorithms.addAction(self.actionIsTree)
         self.menubar.addAction(self.menunew.menuAction())
         self.menubar.addAction(self.menuColor.menuAction())
         self.menubar.addAction(self.menuAlgorithms.menuAction())
@@ -251,9 +325,12 @@ class Ui_GrafCreator(object):
         self.actionBlue.setCheckable(True)
         self.toolbar.addAction(self.actionBlue)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actionVertNumber)
+        self.toolbar.addAction(self.actionEdgeNumber)
         self.toolbar.addAction(self.actionRadius)
         self.toolbar.addAction(self.actionDiameter)
-
+        self.toolbar.addAction(self.actionCenter)
+        self.toolbar.addAction(self.actionIsTree)
         self.retranslateUi(GrafCreator)
         QtCore.QMetaObject.connectSlotsByName(GrafCreator)
 
@@ -273,8 +350,12 @@ class Ui_GrafCreator(object):
         self.actionRed.setText(_translate("GrafCreator", "Red"))
         self.actionGreen.setText(_translate("GrafCreator", "Green"))
         self.actionBlue.setText(_translate("GrafCreator", "Blue"))
+        self.actionVertNumber.setText(_translate("GrafCreator", "Number of vertexes"))
+        self.actionEdgeNumber.setText(_translate("GrafCreator", "Number of edges"))
         self.actionRadius.setText(_translate("GrafCreator", "Radius"))
         self.actionDiameter.setText(_translate("GrafCreator", "Diameter"))
+        self.actionCenter.setText(_translate("GrafCreator", "Center"))
+        self.actionIsTree.setText(_translate("GrafCreator", "Is Tree?"))
 
     def __init__(self):
         self.color = QtGui.QColor(205, 205, 205)
@@ -296,6 +377,7 @@ class Ui_GrafCreator(object):
         self.tabWidget.setCurrentWidget(tab)
         for action in self.toolbar.actions():
             action.setDisabled(False)
+        return tab
 
     def closeTab(self, currentIndex):
         self.tabWidget.widget(currentIndex).deleteLater()
@@ -313,27 +395,29 @@ class Ui_GrafCreator(object):
                        self.actionCloseTab]:
             action.setDisabled(True)
 
-    def save(self):
-        filename = self.tabWidget.currentWidget().objectName() + '.pickle'
-        print(filename)
-        with open('loads/' + filename, 'wb') as file:
-            print('ok')
-            dump(self.tabWidget.currentWidget().graf, file)
-            print('finish')
-
     def open(self):
-        fname = QtWidgets.QFileDialog.getOpenFileName(self.tabWidget.currentWidget(), 'Open file',
-                                                      '')  # БГУиР/4 Сем/ОТС/Editor/loads
-        if fname[0] != '':
-            if fname[0][-7:] == '.pickle':
-                with open(fname[0], 'rb') as file:
-                    tab = Tab(self)
-                    tab.graf = load(file)
-                    tab.setObjectName(fname[0][fname[0].index('/') + 1:-7])
-                    self.tabWidget.addTab(tab, fname[0][fname[0].rindex('/') + 1:-7])
-                    self.tabWidget.setCurrentWidget(tab)
-                    for action in self.toolbar.actions():
-                        action.setDisabled(False)
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self.tabWidget, "QWidgets.QFileDialog.getOpenFileName()",
+                                                            "",
+                                                            "GRAPH (*.graph)", options=options)
+        if fileName[-6:] == '.graph':
+            with open(fileName, 'r') as file:
+                tab = self.new_tab()
+                jsn = load(file)
+                for vert in jsn['vertexes']:
+                    item_par = jsn['vertexes'][vert]['item']
+                    item = tab.addVertexItem(QtCore.QRectF(item_par['rect'][0], item_par['rect'][1],
+                                                           item_par['rect'][2], item_par['rect'][3]), vert,
+                                             QtGui.QColor(item_par['color'][0],
+                                                          item_par['color'][1], item_par['color'][2]), 10)
+                    jsn['vertexes'][tab.graf.add_vertex(item)] = jsn['vertexes'].pop(vert)
+                for vert in jsn['vertexes'].items():
+                    for edge in vert['edges'].items():
+                        tab.addEdgeItem([vert.item, edge.item], edge['item']['color'], 10.0)
+
+    def save(self):
+        self.tabWidget.currentWidget().save()
 
     def clear(self):
         self.tabWidget.currentWidget().clear()
@@ -367,6 +451,18 @@ class Ui_GrafCreator(object):
 
     def diameter(self):
         self.tabWidget.currentWidget().diameter()
+
+    def is_tree(self):
+        self.tabWidget.currentWidget().is_tree()
+
+    def center(self):
+        self.tabWidget.currentWidget().center()
+
+    def vertNumber(self):
+        self.tabWidget.currentWidget().vertNumber()
+
+    def edgeNumber(self):
+        self.tabWidget.currentWidget().edgeNumber()
 
 
 if __name__ == "__main__":

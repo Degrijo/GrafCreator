@@ -12,19 +12,23 @@ class VertexItem(QtWidgets.QGraphicsItem):
         self.brush2 = brush2
         self.parent = parent
         self.font_size = font_size
-        self.rect = QtCore.QRectF(rect[0], rect[1], rect[2], rect[3])
-        self.name = '\n'.join([name[i:i + (rect[0] + rect[2]) // self.font_size] for i in
-                               range(0, len(name), (rect[0] + rect[2]) // self.font_size)])
+        self.rect = rect
+        self.name = name
+        # self.name = '\n'.join([name[i:i + (rect[0] + rect[2]) // self.font_size] for i in
+        # range(0, len(name), (rect[0] + rect[2]) // self.font_size)])
 
     def mouseMoveEvent(self, event):
         QtWidgets.QGraphicsItem.mouseMoveEvent(self, event)
 
     def mousePressEvent(self, event):
         QtWidgets.QGraphicsItem.mousePressEvent(self, event)
+        self.selection()
+        self.parent.checkEdgeItem()
+
+    def selection(self):
         self.setZValue(self.parent.scene.items()[0].zValue() + 1)
         self.parent.scene.clearSelection()
         self.setSelected(True)
-        self.parent.addEdgeItem()
 
     def boundingRect(self):
         return self.rect
@@ -38,6 +42,12 @@ class VertexItem(QtWidgets.QGraphicsItem):
         painter.setPen(QtGui.QColor(0, 0, 0))
         painter.setFont(QtGui.QFont('Decorative', self.font_size))
         painter.drawText(self.rect, QtCore.Qt.AlignCenter, self.name)
+
+    def toJSON(self):
+        # dic = {field[5:]: eval(field) for field in ['self.brush1', 'self.rect', 'self.name', 'self.x()', 'self.y()']}
+        return {'color': self.brush1.color().getRgb()[0:3],
+                'rect': [self.rect.x() + self.x(), self.rect.y() + self.y(), self.rect.width(), self.rect.height()],
+                'name': self.name}
 
 
 class EdgeItem(QtWidgets.QGraphicsLineItem):
@@ -67,14 +77,14 @@ class EdgeItem(QtWidgets.QGraphicsLineItem):
         center2 = (rect2.x() + rect2.width() // 2 + self.vert2.x(), rect2.y() + rect2.height() // 2 + self.vert2.y())
         if self.loop:
             return QtCore.QRectF(rect1.x() + self.vert1.x() - 10, rect1.y() + self.vert1.y() - 10,
-                                 rect1.x() + rect1.width() // 2 + self.vert1.x(), rect1.y() + self.vert1.y() + rect1.height() + 10)
+                                 rect1.x() + rect1.width() // 2 + self.vert1.x(),
+                                 rect1.y() + self.vert1.y() + rect1.height() + 10)
         else:
             return QtCore.QRectF(center1[0], center1[1] - self.pen1.width() // 2,  # типичная ошибка с длиной и шириной
                                  center2[0] - center1[0], self.pen1.width())
 
     def paint(self, painter, option, widget=None):
         if self.isSelected():
-            print('selected')
             painter.setPen(self.pen2)
         else:
             painter.setPen(self.pen1)
@@ -100,7 +110,7 @@ class EdgeItem(QtWidgets.QGraphicsLineItem):
                 line = QtCore.QLineF(center1[0], center1[1], center2[0], center2[1])
                 painter.drawLine(line)
                 m = (rect1.width() / 2) * (center1[0] - center2[0]) // (
-                            (center1[1] - center2[1]) ** 2 + (center1[0] - center2[0]) ** 2) ** (1 / 2) + center2[0]
+                        (center1[1] - center2[1]) ** 2 + (center1[0] - center2[0]) ** 2) ** (1 / 2) + center2[0]
                 n = ((rect1.width() // 2) ** 2 - (m - center2[0]) ** 2) ** (1 / 2) + center2[1]
                 painter.drawLine(m - 30 * sin(line.angle() + 30), n - 30 * cos(line.angle() + 30), m, n)
                 painter.drawLine(m + 30 * sin(line.angle() + 30), n + 30 * cos(line.angle() + 30), m, n)
@@ -110,3 +120,6 @@ class EdgeItem(QtWidgets.QGraphicsLineItem):
 
     def makeWeighted(self, weight):
         self.weight = weight
+
+    def toJSON(self):
+        return {'color': self.pen1.color().getRgb()[0:3]}
