@@ -12,17 +12,33 @@ class Graf:
         self.vertexes.clear()
         self.weighted = False
 
+    def get_edge_number(self):
+        counter = 0
+        old_vertexes = []
+        for vert in self.vertexes:
+            for edge in vert.edges:
+                if not edge.item.oriented and edge.vertex2 in old_vertexes:
+                    counter -= 1
+                counter += 1
+            old_vertexes.append(vert)
+        return counter
+
+    def get_vertex_by_name(self, name):
+        for vert in self.vertexes:
+            if vert.item.name == name:
+                return vert
+
     def get_edge(self, vertex1, vertex2):
         for edge in vertex1.edges:
             if edge.vertex2 == vertex2:
                 return edge
 
-    def get_vertex_item(self, item):
+    def get_vertex_by_item(self, item):
         for vert in self.vertexes:
             if vert.item == item:
                 return vert
 
-    def get_edge_item(self, item):
+    def get_edge_by_item(self, item):
         for vert in self.vertexes:
             for edge in vert.edges:
                 if edge.item == item:

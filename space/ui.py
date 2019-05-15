@@ -33,14 +33,14 @@ class Tab(QtWidgets.QWidget):
                 if type(item) is VertexItem:
                     for vert in self.graf.vertexes:
                         for edge in vert.edges:
-                            if edge.vertex1 == self.graf.get_vertex_item(
-                                    item) or edge.vertex2 == self.graf.get_vertex_item(item):
+                            if edge.vertex1 == self.graf.get_vertex_by_item(
+                                    item) or edge.vertex2 == self.graf.get_vertex_by_item(item):
                                 if edge.item in self.scene.items():
                                     self.scene.removeItem(edge.item)
                     self.scene.removeItem(item)
-                    self.graf.del_vertex(self.graf.get_vertex_item(item))
+                    self.graf.del_vertex(self.graf.get_vertex_by_item(item))
                 elif type(item) is EdgeItem:
-                    edge = self.graf.get_edge_item(item)
+                    edge = self.graf.get_edge_by_item(item)
                     if edge is not None:
                         self.scene.removeItem(item)
                         self.graf.del_edge(edge.vertex1, edge.vertex2)
@@ -74,8 +74,8 @@ class Tab(QtWidgets.QWidget):
                     self.addEdgeItem(self.edge, self.parent.color, 10.0)
 
     def addEdgeItem(self, edge, color, branchSize):
-        vert1 = self.graf.get_vertex_item(edge[0])
-        vert2 = self.graf.get_vertex_item(edge[1])
+        vert1 = self.graf.get_vertex_by_item(edge[0])
+        vert2 = self.graf.get_vertex_by_item(edge[1])
         if vert1 is not None and vert2 is not None:
             if self.graf.get_edge(vert1, vert2) is None:
                 if vert1 == vert2:
@@ -83,7 +83,7 @@ class Tab(QtWidgets.QWidget):
                                     QtGui.QPen(self.getLightColor(color), branchSize), self, True)
                     self.scene.addItem(item)
                 elif self.graf.get_edge(vert2, vert1) is not None:
-                    item = self.graf.get_edge(vert2, vert1)
+                    item = self.graf.get_edge(vert2, vert1).item
                     self.graf.get_edge(vert2, vert1).item.makeNotOriented()
                 else:
                     item = EdgeItem(edge[0], edge[1], QtGui.QPen(color, branchSize),
@@ -108,14 +108,14 @@ class Tab(QtWidgets.QWidget):
         return item
 
     def delVertexItem(self, item):
-        vert = self.graf.get_vertex_item(item)
+        vert = self.graf.get_vertex_by_item(item)
         for edge in vert.edges:
             self.scene.removeItem(edge.item)
         self.graf.del_vertex(vert)
         self.scene.removeItem(item)
 
     def delEdgeItem(self, item):
-        edge = self.graf.get_edge_item(item)
+        edge = self.graf.get_edge_by_item(item)
         self.graf.del_edge(edge.vertex1, edge.vertex2)
         self.scene.removeItem(item)
 
@@ -177,9 +177,7 @@ class Tab(QtWidgets.QWidget):
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setWindowTitle("Number of edges of current Graph")
-        rez = 0
-        for vert in self.graf.vertexes:
-            rez += len(vert.edges)
+        rez = self.graf.get_edge_number()
         if rez is not 0:
             msg.setText(str(rez))
         else:
@@ -267,7 +265,7 @@ class Ui_GrafCreator(object):
         self.actionIsTree.setDisabled(True)
         self.actionIsTree.triggered.connect(self.is_tree)
         self.actionVertNumber = QtWidgets.QAction(QtGui.QIcon("icons/vertNumber.png"), "VertNumber", GrafCreator)
-        self.actionVertNumber.setShortcut("Ctrl+N")
+        self.actionVertNumber.setShortcut("Ctrl+P")
         self.actionVertNumber.setDisabled(True)
         self.actionVertNumber.triggered.connect(self.vertNumber)
         self.actionEdgeNumber = QtWidgets.QAction(QtGui.QIcon("icons/edgeNumber.png"), "EdgeNumber", GrafCreator)
@@ -405,16 +403,22 @@ class Ui_GrafCreator(object):
             with open(fileName, 'r') as file:
                 tab = self.new_tab()
                 jsn = load(file)
+                vertexes = {}
                 for vert in jsn['vertexes']:
                     item_par = jsn['vertexes'][vert]['item']
                     item = tab.addVertexItem(QtCore.QRectF(item_par['rect'][0], item_par['rect'][1],
                                                            item_par['rect'][2], item_par['rect'][3]), vert,
                                              QtGui.QColor(item_par['color'][0],
                                                           item_par['color'][1], item_par['color'][2]), 10)
-                    jsn['vertexes'][tab.graf.add_vertex(item)] = jsn['vertexes'].pop(vert)
-                for vert in jsn['vertexes'].items():
-                    for edge in vert['edges'].items():
-                        tab.addEdgeItem([vert.item, edge.item], edge['item']['color'], 10.0)
+                    vertexes[tab.graf.add_vertex(item)] = jsn['vertexes'][vert]
+                for vert in vertexes:
+                    for edge in vertexes[vert]['edges']:
+                        color = vertexes[vert]['edges'][edge]['item']['color']
+                        tab.addEdgeItem([vert.item, tab.graf.get_vertex_by_name(edge).item],
+                                        QtGui.QColor(color[0], color[1], color[2]), 10.0)
+                for vert in tab.graf.vertexes:
+                    vert.item.selection()
+                tab.scene.clearSelection()
 
     def save(self):
         self.tabWidget.currentWidget().save()
